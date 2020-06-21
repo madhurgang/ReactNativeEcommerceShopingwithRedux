@@ -1,0 +1,1 @@
+export const API_URL = 'http://mrtapi.hokosoko.com/buyer.svc'
