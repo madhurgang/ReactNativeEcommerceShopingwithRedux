@@ -61,6 +61,7 @@ class Product extends Component {
 
   componentDidMount = () => {
     this.props.getProducts()
+    AsyncStorage.getItem('user').then(user => console.log('user in product', user))
   }
 }
 

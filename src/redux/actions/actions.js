@@ -15,8 +15,14 @@ export const loginUser = (email, password) => {
             type: 'INVALID_USER'
           })
         }
-        AsyncStorage.setItem("token", data.data.BuyerId);
-        NavigationService.navigate('Product')
+        AsyncStorage.setItem("token", data.data.BuyerId)
+          .then(() => {
+            AsyncStorage.setItem("user", JSON.stringify(data.data))
+              .then(() => {
+                NavigationService.navigate('Product')
+              })
+              .catch(err => console.log(err))
+          }).catch(err => console.log(err));
         return dispatch({
           type: 'LOGIN_USER',
           payload: data.data
@@ -25,6 +31,10 @@ export const loginUser = (email, password) => {
       .catch(err => console.log(err))
   }
 }
+
+export const logoutUser = () => ({
+  type: 'LOGOUT'
+})
 
 export const getProducts = () => {
   return dispatch => {

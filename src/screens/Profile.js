@@ -1,8 +1,11 @@
 import React, { Component } from 'react'
 import { View, Text, TextInput, Button } from 'react-native'
 import { AsyncStorage } from "react-native";
+import Axios from 'axios';
+import { connect } from 'react-redux';
+import { logoutUser } from '../redux/actions/actions';
 
-export default class Profile extends Component {
+class Profile extends Component {
 
   state = {
     FirstName: "",
@@ -13,7 +16,6 @@ export default class Profile extends Component {
     State: "",
     Pincode: "",
     Mobile: ""
-
   }
 
   handleFeildChange = (field, value) => {
@@ -21,13 +23,28 @@ export default class Profile extends Component {
       [field]: value
     })
   }
+
   handleLogout = () => {
-    AsyncStorage.removeItem('token')
+    AsyncStorage.clear()
+    this.props.handleLogout()
     this.props.navigation.navigate('Login')
   }
-  handleProfile = () => {
 
+  handleProfile = () => {
+    const { FirstName, LastName, Address, City, Country, State, Pincode, Mobile } = this.state;
+    const newUser = {
+      FirstName, LastName, Address, City,
+      Country, State, Pincode, Mobile
+    }
+    AsyncStorage.getItem('token').then(token => {
+      AsyncStorage.setItem("user", JSON.stringify(newUser)).then(data => {
+        // call action
+        Axios.post(`http://mrtapi.hokosoko.com/buyer.svc/Updateprofile?buyerid=${token}&fname=${FirstName}&lname=${LastName}&address=${Address}&city=${City}&country=${Country}&state=${State}&pin=${Pincode}&mobile=${Mobile}`)
+          .then(() => alert('profile updated!'))
+      })
+    })
   }
+
   render() {
     const { FirstName, LastName, Address, City, Country, State, Pincode, Mobile } = this.state;
 
@@ -74,4 +91,25 @@ export default class Profile extends Component {
       </View>
     )
   }
+
+  componentDidMount = () => {
+    AsyncStorage.getItem("user").then(receivedUser => {
+      const user = JSON.parse(receivedUser)
+      console.log(receivedUser);
+      if (user) {
+        this.setState({
+          FirstName: user.FirstName, LastName: user.LastName,
+          Address: user.Address, City: user.City, Country: user.Country,
+          State: user.State, Pincode: user.Pincode, Mobile: user.Mobile
+        })
+      }
+    }
+    );
+  }
 }
+
+const mapActions = {
+  handleLogout: logoutUser
+}
+
+export default connect(null, mapActions)(Profile)

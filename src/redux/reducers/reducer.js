@@ -8,7 +8,14 @@ export const mainReducer = (state = initialState, action) => {
     case "LOGIN_USER": {
       return {
         ...state,
+        auth: true,
         loggedInUser: action.payload
+      };
+    }
+    case 'LOGOUT': {
+      return {
+        ...state,
+        auth: false,
       };
     }
     case "LIST_PRODUCTS": {

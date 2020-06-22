@@ -22,12 +22,17 @@ class Login extends Component {
     const { email, password } = this.state;
     if (email.length && password.length) {
       await this.props.login(email, password)
-      this.props.navigation.navigate('Product')
       this.setState({
         email: "", password: ""
       })
     } else {
       alert('Please enter email and password')
+    }
+  }
+
+  componentDidUpdate = () => {
+    if (this.props.auth) {
+      this.props.navigation.navigate('Product')
     }
   }
 
@@ -65,16 +70,20 @@ class Login extends Component {
     )
   }
 
-  componentDidMount = async () => {
-    const user = await AsyncStorage.getItem("token");
-    if (user) {
-      this.props.navigation.navigate('Product')
+  componentDidMount = () => {
+    AsyncStorage.getItem("token").then(user => {
+      if (user) {
+        this.props.navigation.navigate('Product')
+      }
     }
+    );
   }
 }
-
+const mapState = state => ({
+  auth: state.mainReducer.auth
+})
 const mapActions = {
   login: loginUser
 }
 
-export default connect(null, mapActions)(Login)
+export default connect(mapState, mapActions)(Login)
